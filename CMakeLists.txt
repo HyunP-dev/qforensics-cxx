@@ -6,6 +6,19 @@ include(qt.cmake)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(WIN32)
+    
+else()
+    find_path(TSK_INCLUDE_DIR NAMES tsk/libtsk.h
+        PATHS /opt/homebrew/include /usr/local/include
+    )
+
+    find_library(TSK_LIBRARY NAMES tsk
+        PATHS /opt/homebrew/lib /usr/local/lib
+    )
+endif()
+
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS
@@ -15,13 +28,20 @@ find_package(Qt${QT_VERSION_MAJOR}
 )
 qt_standard_project_setup()
 
+
+file(GLOB WIDGET_SOURCES 
+    CONFIGURE_DEPENDS
+    "widgets/*.cpp"
+    "widgets/*.c"
+    "widgets/*.h"
+)
+
 set(PROJECT_SOURCES
     main.cpp
     MainWindow.ui
     MainWindow.h
     MainWindow.cpp
-    widgets/DynamicContainer.h
-    widgets/DynamicContainer.cpp
+    ${WIDGET_SOURCES}
 )
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
@@ -38,3 +58,5 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Widgets
 )
 
+target_include_directories(${PROJECT_NAME} PRIVATE ${TSK_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${TSK_LIBRARY})
