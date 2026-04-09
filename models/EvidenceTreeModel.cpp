@@ -37,9 +37,9 @@ EvidenceTreeModel::~EvidenceTreeModel() = default;
 
 void EvidenceTreeModel::attachImage(const char *path)
 {
-    this->beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-    this->rootItem->imageItems->append(new ImageItem(path));
-    this->endInsertRows();
+    beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
+    rootItem->imageItems->append(new ImageItem(path));
+    endInsertRows();
 }
 
 int EvidenceTreeModel::rowCount(const QModelIndex &parent) const
@@ -49,7 +49,7 @@ int EvidenceTreeModel::rowCount(const QModelIndex &parent) const
 
     if (!parent.isValid())
     {
-        return this->rootItem->imageItems->size();
+        return rootItem->imageItems->size();
     }
 
     return 0;
@@ -94,12 +94,12 @@ QVariant EvidenceTreeModel::data(const QModelIndex &index, int role) const
 
 QModelIndex EvidenceTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!this->hasIndex(row, column, parent))
+    if (!hasIndex(row, column, parent))
         return {};
 
     if (!parent.isValid())
     {
-        const auto child = this->rootItem->imageItems->at(row);
+        const auto child = rootItem->imageItems->at(row);
         return createIndex(row, column, child);
     }
 

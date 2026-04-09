@@ -9,12 +9,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui.setupUi(this);
 
-    this->setWindowTitle("Qforensics : : Digital Forensics OSS");
+    setWindowTitle("Qforensics : : Digital Forensics OSS");
 
-    this->setCorner(Qt::Corner::TopLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
-    this->setCorner(Qt::Corner::BottomLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
-    this->setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
-    this->setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+    setCorner(Qt::Corner::TopLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+    setCorner(Qt::Corner::BottomLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+    setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+    setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
 
     evidenceTreeDock = new QDockWidget("탐색 트리", this);
     auto evidenceTreeView = new QTreeView(this);
@@ -31,16 +31,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     explorerDock = new QDockWidget("파일 목록", this);
     explorerDock->setWidget(new QTreeView(this));
 
-    this->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, evidenceTreeDock);
-    this->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, propsDock);
-    this->addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, explorerDock);
+    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, evidenceTreeDock);
+    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, propsDock);
+    addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, explorerDock);
 
-    this->resizeDocks({evidenceTreeDock, propsDock}, {70, 40}, Qt::Orientation::Vertical);
-    this->resizeDocks({explorerDock}, {360}, Qt::Orientation::Vertical);
-    this->resizeDocks({evidenceTreeDock, explorerDock}, {250, 750}, Qt::Orientation::Horizontal);
+    resizeDocks({evidenceTreeDock, propsDock}, {70, 40}, Qt::Orientation::Vertical);
+    resizeDocks({explorerDock}, {360}, Qt::Orientation::Vertical);
+    resizeDocks({evidenceTreeDock, explorerDock}, {250, 750}, Qt::Orientation::Horizontal);
 
     auto viewerContainer = new DynamicContainer(this);
-    this->setCentralWidget(viewerContainer);
+    setCentralWidget(viewerContainer);
 
     viewerContainer->setWidget(new QPlainTextEdit(this));
 }
