@@ -50,6 +50,14 @@
           "checksum": "YkRQlz1U8GaOMkC1rLKRECUU2JM="
         }
       }
+    },
+    {
+      "name": "macOS-Qt",
+      "inherits": "Qt",
+      "binaryDir": "${sourceDir}/out/build/macOS-Qt",
+      "environment": {
+        "QTDIR": "/opt/homebrew/opt/qt"
+      }
     }
   ],
   "vendor": {

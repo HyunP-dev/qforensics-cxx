@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
     MainWindow.ui
     MainWindow.h
     MainWindow.cpp
+    widgets/DynamicContainer.h
+    widgets/DynamicContainer.cpp
 )
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
