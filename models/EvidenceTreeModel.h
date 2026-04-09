@@ -8,7 +8,7 @@
 
 class EvidenceTreeItem
 {
-public:
+  public:
     virtual ~EvidenceTreeItem() = default;
 };
 
@@ -16,50 +16,23 @@ class PartitionItem : public EvidenceTreeItem
 {
     TSK_FS_INFO *fs_info;
 
-public:
-    explicit PartitionItem(TSK_IMG_INFO *img_info, const TSK_DADDR_T offset)
-    {
-        fs_info = tsk_fs_open_img(img_info, offset * img_info->sector_size, TSK_FS_TYPE_DETECT);
-    }
+  public:
+    explicit PartitionItem(TSK_IMG_INFO *img_info, TSK_DADDR_T offset);
 };
-
-
 
 class ImageItem : public EvidenceTreeItem
 {
     TSK_IMG_INFO *img_info;
-    QList<PartitionItem *> *partitionItems = new QList<PartitionItem*>();
-    const char* path;
+    QList<PartitionItem *> *partitionItems = new QList<PartitionItem *>();
+    const char *path;
 
   public:
-    explicit ImageItem(const char *path) : path(path)
-    {
-        const char *images[] = {path};
-        img_info = tsk_img_open(1, images, TSK_IMG_TYPE_DETECT, 0);
-        const TSK_VS_INFO *vs_info = tsk_vs_open(img_info, 0, TSK_VS_TYPE_DETECT);
-        for (int i = 0; i < vs_info->part_count; i++)
-        {
-            const TSK_VS_PART_INFO *part = tsk_vs_part_get(vs_info, i);
+    explicit ImageItem(const char *path);
 
-            if (part == nullptr)
-                break;
+    ~ImageItem() override;
 
-            partitionItems->append(new PartitionItem(img_info, part->start));
-        }
-    }
-
-    ~ImageItem()
-    {
-        tsk_img_close(img_info);
-    }
-
-    [[nodiscard]] const char* getImagePath() const
-    {
-        return path;
-    }
+    [[nodiscard]] const char *getImagePath() const;
 };
-
-
 
 class DirectoryItem : public EvidenceTreeItem
 {
@@ -78,71 +51,17 @@ class EvidenceTreeModel : public QAbstractItemModel
     EvidenceTreeModel();
     ~EvidenceTreeModel() override;
 
-    void attachImage(const char *path)
-    {
-        this->beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-        this->rootItem->imageItems->append(new ImageItem(path));
-        this->endInsertRows();
-    }
+    void attachImage(const char *path);
 
-    [[nodiscard]] int rowCount(const QModelIndex &parent) const override {
-        if (parent.column() > 0) return 0;
+    [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
 
-        if (!parent.isValid()) {
-            return this->rootItem->imageItems->size();
-        }
+    [[nodiscard]] int columnCount(const QModelIndex &parent) const override;
 
-        return 0;
-    }
+    [[nodiscard]] QModelIndex parent(const QModelIndex &child) const override;
 
-    [[nodiscard]] int columnCount(const QModelIndex &parent) const override
-    {
-        return 1;
-    }
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
 
-    QModelIndex parent(const QModelIndex &child) const override {
-        if (!child.isValid()) return {};
-
-        auto* item = static_cast<EvidenceTreeItem*>(child.internalPointer());
-
-        if (auto image_item = dynamic_cast<ImageItem*>(item)) {
-            return QModelIndex();
-        }
-
-        if (auto partition_item = dynamic_cast<PartitionItem*>(item))
-        {
-
-        }
-
-        return QModelIndex();
-    }
-
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override
-    {
-        auto* item = static_cast<EvidenceTreeItem*>(index.internalPointer());
-        if (role == Qt::DisplayRole)
-        {
-            if (auto image_item = dynamic_cast<ImageItem*>(item))
-            {
-                return QString(image_item->getImagePath()).split("/").last();
-            }
-        }
-        return QVariant();
-    }
-
-    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex &parent) const override
-    {
-        if (!this->hasIndex(row, column, parent))
-            return {};
-
-        if (!parent.isValid())
-        {
-            const auto child = this->rootItem->imageItems->at(row);
-            return createIndex(row, column, child);
-        }
-
-        return {};
-    }
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex &parent) const override;
 
   private:
     EvidenceTreeRootItem *rootItem = new EvidenceTreeRootItem();
