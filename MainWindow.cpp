@@ -16,13 +16,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
     this->setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
 
-    auto evidenceTreeDock = new QDockWidget("탐색 트리", this);
-    evidenceTreeDock->setWidget(new QTreeView(this));
+    evidenceTreeDock = new QDockWidget("탐색 트리", this);
+    auto evidenceTreeView = new QTreeView(this);
 
-    auto propsDock = new QDockWidget("속성", this);
+    auto model = new EvidenceTreeModel();
+    model->attachImage("/Users/rpark/Downloads/Hunter XP.E01");
+
+    evidenceTreeView->setModel(reinterpret_cast<QAbstractItemModel *>(model));
+    evidenceTreeDock->setWidget(evidenceTreeView);
+
+    propsDock = new QDockWidget("속성", this);
     propsDock->setWidget(new QTreeView(this));
 
-    auto explorerDock = new QDockWidget("파일 목록", this);
+    explorerDock = new QDockWidget("파일 목록", this);
     explorerDock->setWidget(new QTreeView(this));
 
     this->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, evidenceTreeDock);

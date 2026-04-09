@@ -8,15 +8,31 @@
 
 class EvidenceTreeItem
 {
+public:
+    virtual ~EvidenceTreeItem() = default;
 };
 
-class ImageItem : EvidenceTreeItem
+class PartitionItem : public EvidenceTreeItem
+{
+    TSK_FS_INFO *fs_info;
+
+public:
+    explicit PartitionItem(TSK_IMG_INFO *img_info, const TSK_DADDR_T offset)
+    {
+        fs_info = tsk_fs_open_img(img_info, offset * img_info->sector_size, TSK_FS_TYPE_DETECT);
+    }
+};
+
+
+
+class ImageItem : public EvidenceTreeItem
 {
     TSK_IMG_INFO *img_info;
-    QList<EvidenceTreeItem> *partitionItems = new QList<EvidenceTreeItem>();
+    QList<PartitionItem *> *partitionItems = new QList<PartitionItem*>();
+    const char* path;
 
   public:
-    explicit ImageItem(const char *path)
+    explicit ImageItem(const char *path) : path(path)
     {
         const char *images[] = {path};
         img_info = tsk_img_open(1, images, TSK_IMG_TYPE_DETECT, 0);
@@ -28,7 +44,7 @@ class ImageItem : EvidenceTreeItem
             if (part == nullptr)
                 break;
 
-            part;
+            partitionItems->append(new PartitionItem(img_info, part->start));
         }
     }
 
@@ -36,15 +52,98 @@ class ImageItem : EvidenceTreeItem
     {
         tsk_img_close(img_info);
     }
+
+    [[nodiscard]] const char* getImagePath() const
+    {
+        return path;
+    }
 };
 
-class EvidenceTreeModel : QAbstractItemModel
+
+
+class DirectoryItem : public EvidenceTreeItem
+{
+};
+
+class EvidenceTreeRootItem : public EvidenceTreeItem
+{
+  public:
+    QList<ImageItem *> *imageItems = new QList<ImageItem *>();
+};
+
+class EvidenceTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
   public:
     EvidenceTreeModel();
     ~EvidenceTreeModel() override;
 
+    void attachImage(const char *path)
+    {
+        this->beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
+        this->rootItem->imageItems->append(new ImageItem(path));
+        this->endInsertRows();
+    }
+
+    [[nodiscard]] int rowCount(const QModelIndex &parent) const override {
+        if (parent.column() > 0) return 0;
+
+        if (!parent.isValid()) {
+            return this->rootItem->imageItems->size();
+        }
+
+        return 0;
+    }
+
+    [[nodiscard]] int columnCount(const QModelIndex &parent) const override
+    {
+        return 1;
+    }
+
+    QModelIndex parent(const QModelIndex &child) const override {
+        if (!child.isValid()) return {};
+
+        auto* item = static_cast<EvidenceTreeItem*>(child.internalPointer());
+
+        if (auto image_item = dynamic_cast<ImageItem*>(item)) {
+            return QModelIndex();
+        }
+
+        if (auto partition_item = dynamic_cast<PartitionItem*>(item))
+        {
+
+        }
+
+        return QModelIndex();
+    }
+
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override
+    {
+        auto* item = static_cast<EvidenceTreeItem*>(index.internalPointer());
+        if (role == Qt::DisplayRole)
+        {
+            if (auto image_item = dynamic_cast<ImageItem*>(item))
+            {
+                return QString(image_item->getImagePath()).split("/").last();
+            }
+        }
+        return QVariant();
+    }
+
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex &parent) const override
+    {
+        if (!this->hasIndex(row, column, parent))
+            return {};
+
+        if (!parent.isValid())
+        {
+            const auto child = this->rootItem->imageItems->at(row);
+            return createIndex(row, column, child);
+        }
+
+        return {};
+    }
+
   private:
-    EvidenceTreeItem *rootItem;
+    EvidenceTreeRootItem *rootItem = new EvidenceTreeRootItem();
 };

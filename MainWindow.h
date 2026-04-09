@@ -14,4 +14,8 @@ class MainWindow : public QMainWindow
 
   private:
     Ui::MainWindowClass ui;
+
+    QDockWidget* evidenceTreeDock;
+    QDockWidget* propsDock;
+    QDockWidget* explorerDock;
 };
