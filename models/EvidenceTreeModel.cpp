@@ -1,6 +1,12 @@
 #include "EvidenceTreeModel.h"
 
+template <class Child>
+TreeItem<Child>::TreeItem(TreeItem *parent) : parent(parent)
+{
+}
+
 PartitionItem::PartitionItem(TSK_IMG_INFO *img_info, const TSK_DADDR_T offset)
+    : TreeItem(this)
 {
     fs_info = tsk_fs_open_img(img_info, offset * img_info->sector_size, TSK_FS_TYPE_DETECT);
 }

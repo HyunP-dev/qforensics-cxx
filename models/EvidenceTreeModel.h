@@ -6,13 +6,30 @@
 
 #include <tsk/libtsk.h>
 
+template <class Child> class TreeItem
+{
+    TreeItem *parent = nullptr;
+    QList<Child *> *children = new QList<Child *>();
+
+  public:
+    explicit TreeItem(TreeItem *parent);
+
+    int getRow()
+    {
+        return parent->children->indexOf(this);
+    }
+};
+
+
 class EvidenceTreeItem
 {
   public:
     virtual ~EvidenceTreeItem() = default;
 };
 
-class PartitionItem : public EvidenceTreeItem
+class ImageItem;
+
+class PartitionItem : public EvidenceTreeItem, public TreeItem<PartitionItem>
 {
     TSK_FS_INFO *fs_info;
 
