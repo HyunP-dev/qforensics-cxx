@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
-    
+
 else()
     find_path(TSK_INCLUDE_DIR NAMES tsk/libtsk.h
         PATHS /opt/homebrew/include /usr/local/include
@@ -36,12 +36,20 @@ file(GLOB WIDGET_SOURCES
     "widgets/*.h"
 )
 
+file(GLOB MODEL_SOURCES 
+    CONFIGURE_DEPENDS
+    "models/*.cpp"
+    "models/*.c"
+    "models/*.h"
+)
+
 set(PROJECT_SOURCES
     main.cpp
     MainWindow.ui
     MainWindow.h
     MainWindow.cpp
     ${WIDGET_SOURCES}
+    ${MODEL_SOURCES}
 )
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})

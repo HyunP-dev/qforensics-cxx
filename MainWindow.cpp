@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "widgets/DynamicContainer.h"
+#include "models/EvidenceTreeModel.h"
 
 #include <QtCore>
 #include <QtWidgets>
